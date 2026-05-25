@@ -1,3 +1,6 @@
 # pepelix_proyecto_final
 ### Nuestro pryecto se tratara de un inventario de papeleria deonde se podran agregar todo tipo de materiales o lo que se requiera agregar a la base de datos en la cual se espesialisara en actividades como escritura,decoraciones,manualidades,etc. 
 ### Papelix es un proyecto desarrollado con HTML, Python y MongoDB que funciona como un sistema para una papelería. Su objetivo es facilitar la administración de productos, ventas y clientes de manera rápida y organizada. La interfaz en HTML permite una interacción sencilla para el usuario, Python se encarga de la lógica y funcionamiento del sistema, mientras que MongoDB almacena la información de forma segura y eficiente. Este proyecto busca modernizar el control de una papelería mediante el uso de tecnologías web y bases de datos.
+<img width="113" height="201" alt="Yo" src="https://github.com/user-attachments/assets/af32b87c-89c7-47a7-8433-f559d054eb73" />
+<img width="142" height="202" alt="Carlos" src="https://github.com/user-attachments/assets/db6728c1-782d-4edb-bd0e-31af1f4fa0fa" />
+
