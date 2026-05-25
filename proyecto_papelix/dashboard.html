@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Papelix</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f4f7fb; font-family: Arial, Helvetica, sans-serif; }
+        .navbar { background: #0d6efd; }
+        .navbar-brand, .nav-link, .navbar-text { color: #fff !important; }
+        .card { border: 1px solid #e3e6ea; border-radius: 14px; }
+        .btn-papelix { background: #0d6efd; color: #fff; border: none; }
+        .btn-papelix:hover { background: #0b5ed7; }
+        .table-responsive { max-height: 480px; overflow-y: auto; }
+        .badge-status { font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/dashboard">Papelix</a>
+        <div class="d-flex align-items-center">
+            <span class="navbar-text me-3">Hola, {{ usuario }}</span>
+            <a class="btn btn-outline-light" href="/logout">Cerrar sesión</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="row gy-4">
+        <div class="col-lg-5">
+            <div class="card shadow-sm p-4">
+                <h4 class="mb-3">Agregar nuevo producto</h4>
+                <form method="POST" action="/producto">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" name="nombre" placeholder="Escribe el nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" name="descripcion" rows="3" placeholder="Descripción opcional"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Precio</label>
+                        <input type="text" class="form-control" name="precio" placeholder="0.00" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Stock</label>
+                        <input type="number" class="form-control" name="stock" placeholder="Cantidad disponible" required>
+                    </div>
+                    <button type="submit" class="btn btn-papelix w-100">Guardar producto</button>
+                </form>
+            </div>
+
+            <div class="card shadow-sm p-4 mt-4">
+                <h4 class="mb-3">Editar producto</h4>
+                <form id="editForm" method="POST" action="/producto/editar">
+                    <input type="hidden" name="producto_id" id="producto_id">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre_edit" name="nombre_edit" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcion_edit" name="descripcion_edit" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Precio</label>
+                        <input type="text" class="form-control" id="precio_edit" name="precio_edit" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Stock</label>
+                        <input type="number" class="form-control" id="stock_edit" name="stock_edit" required>
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100">Actualizar producto</button>
+                    <button type="button" class="btn btn-secondary w-100 mt-2" onclick="resetEdit()">Limpiar formulario</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card shadow-sm p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h4 class="mb-0">Lista de productos</h4>
+                        <small class="text-muted">Gestiona la colección de MongoDB desde la interfaz.</small>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Precio</th>
+                                <th>Stock</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if productos %}
+                                {% for prod in productos %}
+                                    <tr>
+                                        <td>{{ prod.nombre }}</td>
+                                        <td>${{ '%.2f' | format(prod.precio) }}</td>
+                                        <td>{{ prod.stock }}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-info me-2" onclick="editarProducto('{{ prod._id }}', '{{ prod.nombre | e }}', '{{ prod.descripcion | e }}', '{{ prod.precio }}', '{{ prod.stock }}')">Editar</button>
+                                            <form method="POST" action="/producto/eliminar/{{ prod._id }}" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">No hay productos registrados.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function editarProducto(id, nombre, descripcion, precio, stock) {
+        document.getElementById('producto_id').value = id;
+        document.getElementById('nombre_edit').value = nombre;
+        document.getElementById('descripcion_edit').value = descripcion;
+        document.getElementById('precio_edit').value = precio;
+        document.getElementById('stock_edit').value = stock;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetEdit() {
+        document.getElementById('editForm').reset();
+        document.getElementById('producto_id').value = '';
+    }
+</script>
+</body>
+</html>
